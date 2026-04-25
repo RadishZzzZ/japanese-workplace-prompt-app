@@ -43,7 +43,7 @@
 
 点击下面的网址即可打开：
 
-https://你的-app-url.streamlit.app
+https://japanese-workplace-prompt-app-sesnbpwspadq2cppic5vkm.streamlit.app/
 
 打开后：
 
