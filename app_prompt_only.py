@@ -2,30 +2,30 @@
 # ============================================================
 # 这是“无 API Key 的手机友好版”Streamlit App。
 #
-# 它不会调用 OpenAI API，也不需要 .env 文件。
+# 这个版本不会调用 OpenAI API，也不需要 .env 文件。
 #
 # 它的作用是：
-# 1. 让你输入中文
+# 1. 输入中文
 # 2. 选择日本职场场景
 # 3. 选择语气
-# 4. 自动生成一段可以复制到 ChatGPT 的高质量 Prompt
+# 4. 生成一段可以复制到 ChatGPT 的高质量 Prompt
+# 5. 提供“一键复制 Prompt”按钮
 #
-# 使用方式：
-# 你把生成出来的 Prompt 复制到 ChatGPT 手机 App / 网页版里，
-# ChatGPT 就会按照指定格式帮你输出自然的日本职场日语。
-#
-# 适合场景：
-# - 公司电脑不方便设置 API Key
-# - 手机上想快速使用
-# - 不想产生 OpenAI API 费用
-# - 不想把 API Key 存在本地项目里
+# 适合：
+# - 手机使用
+# - 公司电脑使用
+# - 不想设置 API Key
+# - 不想产生 API 费用
 # ============================================================
 
+import html
+import json
 import traceback
 from datetime import datetime
 from pathlib import Path
 
 import streamlit as st
+import streamlit.components.v1 as components
 
 
 # ============================================================
@@ -59,14 +59,12 @@ TONE_OPTIONS = [
     "失礼がない範囲でかなり短く",
 ]
 
-
-# 保存 prompt 历史的文件夹。
 OUTPUT_DIR = Path(__file__).parent / "output"
 PROMPT_HISTORY_FILE = OUTPUT_DIR / "prompt_history.txt"
 
 
 # ============================================================
-# 场景说明函数
+# 场景说明
 # ============================================================
 
 def get_scene_instruction(scene: str) -> str:
@@ -171,7 +169,7 @@ def get_tone_instruction(tone: str) -> str:
 
 
 # ============================================================
-# Prompt 生成函数
+# Prompt 生成
 # ============================================================
 
 def build_copy_prompt(chinese_text: str, scene: str, tone: str) -> str:
@@ -247,13 +245,15 @@ def build_copy_prompt(chinese_text: str, scene: str, tone: str) -> str:
 
 
 # ============================================================
-# 历史保存函数
+# 保存 Prompt 历史
 # ============================================================
 
 def save_prompt_history(prompt: str) -> bool:
     """
     把生成过的 Prompt 保存到本地 txt 文件。
-    这样你以后可以回头找。
+    注意：
+    Streamlit Cloud 上的文件保存不一定长期稳定，
+    但本地运行时可以用来临时记录。
     """
 
     try:
@@ -277,6 +277,114 @@ def save_prompt_history(prompt: str) -> bool:
         print("保存 Prompt 历史时发生错误。完整错误如下：")
         traceback.print_exc()
         return False
+
+
+# ============================================================
+# 一键复制组件
+# ============================================================
+
+def show_copy_prompt_component(prompt: str) -> None:
+    """
+    显示一个带“一键复制”按钮的 HTML 组件。
+
+    为什么不用 Streamlit 原生按钮？
+    Streamlit 的普通按钮不能直接操作浏览器剪贴板。
+    所以这里用一点 JavaScript 调用 navigator.clipboard.writeText()。
+
+    注意：
+    这个复制功能在 HTTPS 页面上最稳定。
+    Streamlit Community Cloud 部署后是 HTTPS，所以手机上一般可以正常使用。
+    如果本地 localhost 或某些浏览器限制剪贴板权限，下面还保留了普通文本框作为备用。
+    """
+
+    # json.dumps 会安全地把 Python 字符串转换成 JavaScript 字符串。
+    prompt_for_js = json.dumps(prompt, ensure_ascii=False)
+
+    # html.escape 用来避免 Prompt 内容影响 HTML 显示。
+    prompt_for_textarea = html.escape(prompt)
+
+    components.html(
+        f"""
+        <div style="
+            font-family: sans-serif;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            padding: 14px;
+            background: #ffffff;
+        ">
+            <button
+                id="copyButton"
+                style="
+                    width: 100%;
+                    padding: 14px;
+                    border: none;
+                    border-radius: 10px;
+                    background: #ff4b4b;
+                    color: white;
+                    font-size: 16px;
+                    font-weight: 700;
+                    cursor: pointer;
+                    margin-bottom: 10px;
+                "
+            >
+                📋 一键复制 Prompt
+            </button>
+
+            <div
+                id="copyStatus"
+                style="
+                    font-size: 14px;
+                    color: #333;
+                    margin-bottom: 10px;
+                    min-height: 20px;
+                "
+            >
+                点击上面的按钮后，再打开 ChatGPT 粘贴即可。
+            </div>
+
+            <textarea
+                id="promptText"
+                readonly
+                style="
+                    width: 100%;
+                    height: 360px;
+                    box-sizing: border-box;
+                    border: 1px solid #ccc;
+                    border-radius: 8px;
+                    padding: 10px;
+                    font-size: 14px;
+                    line-height: 1.5;
+                    white-space: pre-wrap;
+                "
+            >{prompt_for_textarea}</textarea>
+        </div>
+
+        <script>
+            const promptText = {prompt_for_js};
+            const copyButton = document.getElementById("copyButton");
+            const copyStatus = document.getElementById("copyStatus");
+            const textarea = document.getElementById("promptText");
+
+            copyButton.addEventListener("click", async () => {{
+                try {{
+                    await navigator.clipboard.writeText(promptText);
+                    copyStatus.innerText = "✅ 已复制。现在可以打开 ChatGPT 粘贴发送。";
+                    copyStatus.style.color = "green";
+                }} catch (err) {{
+                    console.error("Clipboard copy failed:", err);
+
+                    // 备用方案：自动选中文本，让用户手动复制。
+                    textarea.focus();
+                    textarea.select();
+
+                    copyStatus.innerText = "⚠️ 浏览器阻止了一键复制。文本已自动选中，请手动复制。";
+                    copyStatus.style.color = "orange";
+                }}
+            }});
+        </script>
+        """,
+        height=520,
+    )
 
 
 # ============================================================
@@ -340,19 +448,25 @@ def main() -> None:
 
             save_prompt_history(prompt)
 
-            st.success("Prompt 已生成。请复制下面内容到 ChatGPT。")
+            st.success("Prompt 已生成。可以点击下面的按钮一键复制。")
+
+            show_copy_prompt_component(prompt)
+
+            st.warning(
+                "如果手机浏览器阻止了一键复制，请在下方备用文本框中手动长按复制。"
+            )
 
             st.text_area(
-                label="复制这里的完整 Prompt",
+                label="备用复制文本框",
                 value=prompt,
-                height=500,
+                height=260,
             )
 
             st.markdown(
                 """
                 使用方法：
 
-                1. 复制上面整个 Prompt  
+                1. 点击「一键复制 Prompt」  
                 2. 打开 ChatGPT 手机 App 或网页版  
                 3. 粘贴并发送  
                 4. 复制 ChatGPT 输出的日语结果  
