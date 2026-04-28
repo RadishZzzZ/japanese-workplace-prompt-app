@@ -1,1 +1,19 @@
-
+{
+  "name": "日本职场日语 Prompt 生成器",
+  "short_name": "职场日语",
+  "description": "输入中文，生成适合复制到 ChatGPT 的日本职场日语 Prompt。",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#0f2a4a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
