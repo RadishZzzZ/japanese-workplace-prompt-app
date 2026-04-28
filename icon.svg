@@ -1,1 +1,57 @@
+<!--
+icon.svg
+============================================================
+这是 App 图标。
+设计含义：
+- JP：Japanese / Japan
+- 对话框：沟通
+- 文档线条：邮件、报告、Slack 文本
+- 红点：日本元素
+============================================================
+-->
 
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" rx="112" fill="#FFFFFF"/>
+
+  <circle cx="256" cy="256" r="206" fill="#F4F7FB"/>
+
+  <path
+    d="M128 160C128 132.4 150.4 110 178 110H334C361.6 110 384 132.4 384 160V270C384 297.6 361.6 320 334 320H238L164 380V320H178C150.4 320 128 297.6 128 270V160Z"
+    fill="#0F2A4A"
+  />
+
+  <path
+    d="M156 162C156 147.6 167.6 136 182 136H330C344.4 136 356 147.6 356 162V260C356 274.4 344.4 286 330 286H224L182 322V286C167.6 286 156 274.4 156 260V162Z"
+    fill="#FFFFFF"
+  />
+
+  <rect x="190" y="174" width="132" height="14" rx="7" fill="#8BA0B8"/>
+  <rect x="190" y="210" width="164" height="14" rx="7" fill="#8BA0B8"/>
+  <rect x="190" y="246" width="96" height="14" rx="7" fill="#8BA0B8"/>
+
+  <text
+    x="256"
+    y="380"
+    text-anchor="middle"
+    font-family="Georgia, serif"
+    font-size="124"
+    font-weight="700"
+    fill="#0F2A4A"
+  >JP</text>
+
+  <circle cx="350" cy="354" r="34" fill="#E94141"/>
+
+  <path
+    d="M310 392H390"
+    stroke="#0F2A4A"
+    stroke-width="14"
+    stroke-linecap="round"
+  />
+
+  <path
+    d="M340 418H410"
+    stroke="#0F2A4A"
+    stroke-width="14"
+    stroke-linecap="round"
+  />
+</svg>
