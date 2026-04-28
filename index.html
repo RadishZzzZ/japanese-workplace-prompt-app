@@ -1,1 +1,185 @@
+<!--
+index.html
+============================================================
+这是 PWA App 的主页面。
 
+新版结构：
+对象 × 渠道 × 目的 × 礼貌度 × 长度
+
+这个文件不调用 AI，也不需要 API Key。
+真正生成日语结果的是：用户把 Prompt 复制到 ChatGPT 后，由 ChatGPT 生成。
+============================================================
+-->
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>日本职场日语 Prompt 生成器</title>
+
+  <link rel="manifest" href="manifest.webmanifest" />
+
+  <meta name="apple-mobile-web-app-title" content="职场日语" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="theme-color" content="#0f2a4a" />
+
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="app-shell">
+
+    <header class="app-header">
+      <div class="logo-circle">
+        <img src="icon.svg" alt="App logo" />
+      </div>
+
+      <div class="header-text">
+        <p class="eyebrow">Workplace Japanese Prompt Tool</p>
+        <h1>职场日语 Prompt</h1>
+        <p class="subtitle">中文内容 → 场景控制 → ChatGPT Prompt</p>
+      </div>
+    </header>
+
+    <section class="notice-card">
+      <div class="notice-title">📌 无 API Key 版</div>
+      <p>
+        这个 App 只生成 Prompt，不直接调用 AI。复制后请粘贴到 ChatGPT 使用。
+        请不要输入客户名、项目名、公司机密等敏感信息。
+      </p>
+    </section>
+
+    <main class="main-card">
+
+      <div class="section-title-row">
+        <span class="step-badge">1</span>
+        <h2>输入你想表达的中文</h2>
+      </div>
+
+      <textarea
+        id="chineseInput"
+        class="text-input"
+        placeholder="例如：任务进度有点延迟，但我已经确认了原因，今天下午会继续处理。"
+      ></textarea>
+
+      <div class="section-title-row">
+        <span class="step-badge">2</span>
+        <h2>选择沟通条件</h2>
+      </div>
+
+      <label class="field-label" for="audienceSelect">
+        对象：誰に伝えるか
+      </label>
+      <select id="audienceSelect" class="select-input">
+        <option>上司</option>
+        <option>同僚</option>
+        <option>チーム全体</option>
+        <option>社外・お客様</option>
+        <option>自分用メモ</option>
+      </select>
+
+      <label class="field-label" for="channelSelect">
+        渠道：どこで使うか
+      </label>
+      <select id="channelSelect" class="select-input">
+        <option>Slack / Teams</option>
+        <option>メール</option>
+        <option>朝会・口頭報告</option>
+        <option>ドキュメント・議事録</option>
+      </select>
+
+      <label class="field-label" for="purposeSelect">
+        目的：何をしたいか
+      </label>
+      <select id="purposeSelect" class="select-input">
+        <option>報告する</option>
+        <option>相談する</option>
+        <option>依頼する</option>
+        <option>確認する</option>
+        <option>謝罪する</option>
+        <option>断る</option>
+        <option>体調不良・休み・遅刻・早退を伝える</option>
+        <option>自然な日本語に直す</option>
+      </select>
+
+      <div class="section-title-row compact">
+        <span class="step-badge">3</span>
+        <h2>调整表达风格</h2>
+      </div>
+
+      <div class="two-column-grid">
+        <div>
+          <label class="field-label" for="politenessSelect">
+            礼貌度
+          </label>
+          <select id="politenessSelect" class="select-input">
+            <option>普通に丁寧</option>
+            <option>ややカジュアル</option>
+            <option>かなり丁寧</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="field-label" for="lengthSelect">
+            长度
+          </label>
+          <select id="lengthSelect" class="select-input">
+            <option>短め</option>
+            <option>一言だけ</option>
+            <option>標準</option>
+            <option>少し詳しく</option>
+          </select>
+        </div>
+      </div>
+
+      <button id="generateButton" class="primary-button">
+        Prompt を生成する
+      </button>
+
+      <p id="statusMessage" class="status-message"></p>
+    </main>
+
+    <section id="resultSection" class="result-card hidden">
+      <div class="result-header">
+        <div>
+          <p class="eyebrow small">Generated Prompt</p>
+          <h2>生成结果</h2>
+        </div>
+        <button id="copyButton" class="copy-button">
+          一键复制
+        </button>
+      </div>
+
+      <textarea id="promptOutput" class="prompt-output" readonly></textarea>
+
+      <p class="hint-text">
+        复制后打开 ChatGPT，把 Prompt 粘贴进去发送即可。
+      </p>
+    </section>
+
+    <section class="history-card">
+      <div class="history-header">
+        <div>
+          <p class="eyebrow small">Recent</p>
+          <h2>最近记录</h2>
+        </div>
+        <button id="clearHistoryButton" class="secondary-button">
+          清空
+        </button>
+      </div>
+
+      <div id="historyList" class="history-list">
+        <p class="empty-history">还没有历史记录。</p>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
