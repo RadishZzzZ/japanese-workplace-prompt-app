@@ -21,8 +21,6 @@
 
 ## 在线使用
 
-如果已经部署到 GitHub Pages，请点击：
-
 [打开日本职场日语 Prompt 生成器](https://radishzzzz.github.io/japanese-workplace-prompt-app/)
 
 ---
