@@ -6,9 +6,6 @@
 
 > 输入中文，选择对象、渠道、目的、礼貌度和长度，然后生成一段可以复制到 ChatGPT 的高质量 Prompt，让 ChatGPT 帮你改写成自然、得体、符合日本职场语感的日语。
 
-这个版本是 **无 API Key 版**。
-
-也就是说：
 
 - 不需要 OpenAI API Key
 - 不会调用 OpenAI API
