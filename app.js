@@ -3,13 +3,19 @@ app.js
 ============================================================
 这个文件负责 App 的全部逻辑。
 
-新版核心：
+当前版本核心结构：
 对象 × 渠道 × 目的 × 礼貌度 × 长度
 
 这个文件不调用 AI。
-它只是把固定说明、用户输入和五个选择项拼成 Prompt。
+它只是把固定说明、用户输入和选择项拼成 Prompt。
+真正生成日语结果的是：用户把 Prompt 复制到 ChatGPT 后，由 ChatGPT 生成。
 ============================================================
 */
+
+
+// ============================================================
+// 对象说明：誰に伝えるか
+// ============================================================
 
 function getAudienceInstruction(audience) {
   const audienceMap = {
@@ -32,6 +38,11 @@ function getAudienceInstruction(audience) {
   return audienceMap[audience] || "请根据对象生成自然、得体的日本职场表达。";
 }
 
+
+// ============================================================
+// 渠道说明：どこで使うか
+// ============================================================
+
 function getChannelInstruction(channel) {
   const channelMap = {
     "Slack / Teams":
@@ -43,15 +54,20 @@ function getChannelInstruction(channel) {
     "朝会・口頭報告":
       "使用渠道是晨会或口头报告。表达要适合说出口，句子不要太长。优先使用「昨日は〜」「本日は〜」「現状〜です」「困っている点は〜です」等结构。",
 
-    "ドキュメント・議事録":
-      "使用渠道是文档或会议记录。表达要客观、书面、清楚，减少主观情绪。适合记录事实、状态和下一步。",
-
     "朝会テンプレ記入":
-      "使用渠道是晨会模板填写。请优先使用名词、短句、项目符号风格，适合直接填入「前日までの進捗」「本日の予定」「困っていること」「勤怠連絡」「話したいこと」等栏目。可以使用「特になし」「確認中」「対応中」「XX研修課題」「XX講義参加」这类短表达。"
+      "使用渠道是晨会模板填写。请不要写完整文章，也不要写正式邮件。请优先使用名词、短句、项目符号风格，适合直接填入「前日までの進捗」「本日の予定」「困っていること」「勤怠連絡」「話したいこと」等栏目。可以使用「特になし」「確認中」「対応中」「XX研修課題」「XX講義参加」这类短表达。",
+
+    "ドキュメント・議事録":
+      "使用渠道是文档或会议记录。表达要客观、书面、清楚，减少主观情绪。适合记录事实、状态和下一步。"
   };
 
   return channelMap[channel] || "请根据使用渠道调整表达形式。";
 }
+
+
+// ============================================================
+// 目的说明：何をしたいか
+// ============================================================
 
 function getPurposeInstruction(purpose) {
   const purposeMap = {
@@ -83,6 +99,11 @@ function getPurposeInstruction(purpose) {
   return purposeMap[purpose] || "请根据沟通目的生成合适的日本职场表达。";
 }
 
+
+// ============================================================
+// 礼貌度说明：どのくらい丁寧にするか
+// ============================================================
+
 function getPolitenessInstruction(politeness) {
   const politenessMap = {
     "ややカジュアル":
@@ -97,6 +118,11 @@ function getPolitenessInstruction(politeness) {
 
   return politenessMap[politeness] || "请使用自然、礼貌的日本职场表达。";
 }
+
+
+// ============================================================
+// 长度说明：どのくらい短くするか
+// ============================================================
 
 function getLengthInstruction(length) {
   const lengthMap = {
@@ -119,6 +145,11 @@ function getLengthInstruction(length) {
   return lengthMap[length] || "请控制在自然、易读的长度。";
 }
 
+
+// ============================================================
+// 生成 Prompt
+// ============================================================
+
 function buildPrompt(chineseText, audience, channel, purpose, politeness, length) {
   const audienceInstruction = getAudienceInstruction(audience);
   const channelInstruction = getChannelInstruction(channel);
@@ -139,7 +170,7 @@ function buildPrompt(chineseText, audience, channel, purpose, politeness, length
 请注意：
 1. 不要逐字翻译中文。
 2. 要根据对象、渠道、目的、礼貌度和长度调整表达。
-3. 上司、同事、客户、Slack / Teams、邮件、晨会报告的语感要区分。
+3. 上司、同事、客户、Slack / Teams、邮件、晨会报告、晨会模板填写的语感要区分。
 4. 输出要自然，像真实日本公司员工会写或会说的话。
 5. 不要过度卑微。
 6. 不要过度夸张。
@@ -151,9 +182,10 @@ function buildPrompt(chineseText, audience, channel, purpose, politeness, length
 12. 如果是给上司，要礼貌、有报告意识，但不要过度卑微。
 13. 如果是给同僚，要自然、有协作感。
 14. 如果是晨会或口头报告，要简洁，适合说出口。
-15. 遇到进度延迟时，要表达“现状、原因、下一步”，但不要像在找借口。
-16. 遇到不懂的问题时，要表达“自己先尝试过，但希望确认”，不要显得完全没想。
-17. 遇到身体不舒服、请假、早退、迟到时，要自然说明，不要写得太沉重。
+15. 如果是晨会模板填写，要优先使用短句、名词、项目符号，不要强行写成完整句。
+16. 遇到进度延迟时，要表达“现状、原因、下一步”，但不要像在找借口。
+17. 遇到不懂的问题时，要表达“自己先尝试过，但希望确认”，不要显得完全没想。
+18. 遇到身体不舒服、请假、早退、迟到时，要自然说明，不要写得太沉重。
 
 【我的中文原文】
 ${chineseText}
@@ -197,13 +229,18 @@ ${lengthInstruction}
 （日语：在同一条件下，给一个语感略有不同的备选表达）
 
 【より自然にするポイント】
-（中文解释：为什么这样说适合这个对象、渠道和目的）
+（中文解释：为什么这样说适合这个对象、渠道、目的和长度）
 
 【避けた方がいい直訳】
 （中文解释：哪些中文直译容易显得奇怪、强硬、冷淡或不自然）`;
 }
 
-const HISTORY_KEY = "jp_workplace_prompt_history_v2";
+
+// ============================================================
+// 历史记录
+// ============================================================
+
+const HISTORY_KEY = "jp_workplace_prompt_history_v3";
 
 function getHistory() {
   try {
@@ -226,6 +263,7 @@ function saveHistoryItem(item) {
 
     history.unshift(item);
 
+    // 只保留最近 10 条，避免 localStorage 过大。
     const latestHistory = history.slice(0, 10);
 
     localStorage.setItem(HISTORY_KEY, JSON.stringify(latestHistory));
@@ -298,6 +336,11 @@ function renderHistory() {
   });
 }
 
+
+// ============================================================
+// 工具函数
+// ============================================================
+
 function escapeHtml(text) {
   return String(text)
     .replaceAll("&", "&amp;")
@@ -309,7 +352,10 @@ function escapeHtml(text) {
 
 function setStatus(message) {
   const statusMessage = document.getElementById("statusMessage");
-  statusMessage.textContent = message;
+
+  if (statusMessage) {
+    statusMessage.textContent = message;
+  }
 }
 
 async function copyText(text) {
@@ -319,6 +365,7 @@ async function copyText(text) {
   } catch (error) {
     console.error("一键复制失败，改用备用复制方式：", error);
 
+    // 备用方案：把输出框选中，让用户手动复制。
     const promptOutput = document.getElementById("promptOutput");
 
     if (promptOutput) {
@@ -329,6 +376,11 @@ async function copyText(text) {
     return false;
   }
 }
+
+
+// ============================================================
+// 主逻辑
+// ============================================================
 
 function initializeApp() {
   const chineseInput = document.getElementById("chineseInput");
@@ -386,6 +438,7 @@ function initializeApp() {
 
     setStatus("Prompt 已生成。可以点击一键复制。");
 
+    // 自动滚动到结果区域，手机上体验更好。
     resultSection.scrollIntoView({
       behavior: "smooth",
       block: "start"
@@ -403,9 +456,9 @@ function initializeApp() {
     const success = await copyText(text);
 
     if (success) {
-      setStatus("已复制。现在可以打开 ChatGPT 粘贴发送。");
+      setStatus("已复制。可以打开 ChatGPT 粘贴发送。");
     } else {
-      setStatus("浏览器阻止了一键复制。文本已自动选中，请手动复制。");
+      setStatus("浏览器阻止了一键复制。文本已自动选中，请手动复制后打开 ChatGPT。");
     }
   });
 
@@ -421,6 +474,11 @@ function initializeApp() {
   renderHistory();
 }
 
+
+// ============================================================
+// 注册 Service Worker
+// ============================================================
+
 function registerServiceWorker() {
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker.register("sw.js")
@@ -433,6 +491,8 @@ function registerServiceWorker() {
   }
 }
 
+
+// 页面加载完成后启动 App。
 document.addEventListener("DOMContentLoaded", () => {
   initializeApp();
   registerServiceWorker();
