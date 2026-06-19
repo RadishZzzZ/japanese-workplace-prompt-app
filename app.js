@@ -4,7 +4,7 @@ app.js
 这个文件负责 App 的全部逻辑。
 
 当前版本核心结构：
-对象 × 渠道 × 目的 × 礼貌度 × 长度
+对象 × 场景 × 礼貌度 × 长度
 
 这个文件不调用 AI。
 它只是把固定说明、用户输入和选择项拼成 Prompt。
@@ -18,24 +18,21 @@ const PRESETS = {
     text: "任务进度有点延期，但我已经确认了原因，今天下午会继续处理。",
     audienceIndex: 0,
     channelIndex: 0,
-    purposeIndex: 0,
-    politenessIndex: 0,
+    politenessIndex: 1,
     lengthIndex: 2
   },
   ask: {
     text: "这个部分我不太确定，想请你帮我确认一下处理方向。",
     audienceIndex: 1,
     channelIndex: 0,
-    purposeIndex: 2,
-    politenessIndex: 1,
+    politenessIndex: 0,
     lengthIndex: 2
   },
   sick: {
     text: "今天身体不太舒服，可能会晚一点开始工作，我会先处理紧急事项。",
     audienceIndex: 0,
     channelIndex: 0,
-    purposeIndex: 6,
-    politenessIndex: 0,
+    politenessIndex: 1,
     lengthIndex: 2
   }
 };
@@ -50,16 +47,16 @@ function getAudienceInstruction(audience) {
     "上司":
       "对象是上司。表达要礼貌、有报告意识。先说结论，再说现状和下一步。不要过度解释，也不要显得在找借口。不要过度卑微。",
 
-    "同僚":
+    "同事":
       "对象是平级同事。表达要自然、有协作感。可以稍微柔和，但不要太随便。避免命令口吻。",
 
-    "チーム全体":
+    "团队全体":
       "对象是团队全体。表达要客观、简洁、信息清楚。避免个人情绪、抱怨和过度道歉。",
 
-    "社外・お客様":
+    "客户 / 公司外部":
       "对象是公司外部人员或客户。表达要正式、谨慎、敬语自然。避免口语化表达。必要时使用「恐れ入りますが」「ご確認いただけますと幸いです」等表达。",
 
-    "自分用メモ":
+    "自己备忘":
       "对象是自己。重点是整理意思，不需要敬语。表达可以短而清楚，但要保留原意。"
   };
 
@@ -68,63 +65,28 @@ function getAudienceInstruction(audience) {
 
 
 // ============================================================
-// 渠道说明：どこで使うか
+// 场景说明：在哪里使用
 // ============================================================
 
 function getChannelInstruction(channel) {
   const channelMap = {
     "Slack / Teams":
-      "使用渠道是 Slack 或 Teams。请使用短句，不要写邮件开头和结尾。表达要简洁，但不能冷淡。适合使用「確認します」「対応します」「共有します」等自然的社内表达。",
+      "使用场景是 Slack 或 Teams。请使用短句，不要写邮件开头和结尾。表达要简洁，但不能冷淡。适合使用「確認します」「対応します」「共有します」等自然的社内表达。",
 
-    "メール":
-      "使用渠道是邮件。请使用相对完整的结构。根据对象选择是否加入「お疲れ様です」或「いつもお世話になっております」。结尾要自然收束。",
+    "邮件":
+      "使用场景是邮件。请使用相对完整的结构。根据对象选择是否加入「お疲れ様です」或「いつもお世話になっております」。结尾要自然收束。",
 
-    "朝会・口頭報告":
-      "使用渠道是晨会或口头报告。表达要适合说出口，句子不要太长。优先使用「昨日は〜」「本日は〜」「現状〜です」「困っている点は〜です」等结构。",
+    "口头报告 / 朝会发言":
+      "使用场景是晨会或口头报告。表达要适合说出口，句子不要太长。优先使用「昨日は〜」「本日は〜」「現状〜です」「困っている点は〜です」等结构。",
 
-    "朝会テンプレ記入":
-      "使用渠道是晨会模板填写。请不要写完整文章，也不要写正式邮件。请优先使用名词、短句、项目符号风格，适合直接填入「前日までの進捗」「本日の予定」「困っていること」「勤怠連絡」「話したいこと」等栏目。可以使用「特になし」「確認中」「対応中」「XX研修課題」「XX講義参加」这类短表达。",
+    "朝会模板填写":
+      "使用场景是晨会模板填写。请不要写完整文章，也不要写正式邮件。请优先使用名词、短句、项目符号风格，适合直接填入「前日までの進捗」「本日の予定」「困っていること」「勤怠連絡」「話したいこと」等栏目。可以使用「特になし」「確認中」「対応中」「XX研修課題」「XX講義参加」这类短表达。",
 
-    "ドキュメント・議事録":
-      "使用渠道是文档或会议记录。表达要客观、书面、清楚，减少主观情绪。适合记录事实、状态和下一步。"
+    "文档 / 会议记录":
+      "使用场景是文档或会议记录。表达要客观、书面、清楚，减少主观情绪。适合记录事实、状态和下一步。"
   };
 
-  return channelMap[channel] || "请根据使用渠道调整表达形式。";
-}
-
-
-// ============================================================
-// 目的说明：何をしたいか
-// ============================================================
-
-function getPurposeInstruction(purpose) {
-  const purposeMap = {
-    "報告する":
-      "目的是报告。请包含现状、已经完成的部分、下一步。如有延迟，要说明原因和对应方针，但不要像找借口。",
-
-    "相談する":
-      "目的是商量。请表达自己已经尝试或思考过，但希望对方确认或给建议。不要显得完全没想。",
-
-    "依頼する":
-      "目的是请求别人帮忙。请说明背景、请求内容、希望对方做什么。避免命令感，语气要自然礼貌。",
-
-    "確認する":
-      "目的是确认。请自然表达「自己的理解是否正确」「确认后再回复」等含义。不要显得完全没理解，也不要让对方觉得你在推迟。",
-
-    "謝罪する":
-      "目的是道歉。请简洁承认问题，再说明修正或下一步。不要过度自责，也不要写成长篇解释。",
-
-    "断る":
-      "目的是委婉拒绝。请先表示理解或感谢，再说明目前难以对应，必要时给出替代方案或后续余地。",
-
-    "体調不良・休み・遅刻・早退を伝える":
-      "目的是说明体调不良、请假、迟到或早退。请自然说明状况、对工作的影响和后续处理。不要写得过于沉重。",
-
-    "自然な日本語に直す":
-      "目的是把表达改得更自然。请保持原意，不要补充不存在的信息。重点是日本职场中真实、自然、不生硬的表达。"
-  };
-
-  return purposeMap[purpose] || "请根据沟通目的生成合适的日本职场表达。";
+  return channelMap[channel] || "请根据使用场景调整表达形式。";
 }
 
 
@@ -134,13 +96,13 @@ function getPurposeInstruction(purpose) {
 
 function getPolitenessInstruction(politeness) {
   const politenessMap = {
-    "ややカジュアル":
+    "稍微轻松":
       "礼貌度是稍微轻松。适合关系较近的同事。可以使用「確認してみます」「助かります」「〜できそうです」等表达，但不要太随便。",
 
-    "普通に丁寧":
+    "普通礼貌":
       "礼貌度是普通礼貌。适合大多数公司内部沟通。使用自然的丁寧語，不要过度郑重，也不要太随便。",
 
-    "かなり丁寧":
+    "更正式":
       "礼貌度是相当礼貌。适合上司、客户、正式邮件。使用更谨慎的敬语，但不要堆砌敬语，不要过度卑微。"
   };
 
@@ -178,54 +140,16 @@ function getLengthInstruction(length) {
 // 生成 Prompt
 // ============================================================
 
-function buildShortPrompt(chineseText, audience, channel, purpose, politeness, length) {
+function buildPrompt(chineseText, audience, channel, politeness, length) {
   const audienceInstruction = getAudienceInstruction(audience);
   const channelInstruction = getChannelInstruction(channel);
-  const purposeInstruction = getPurposeInstruction(purpose);
-  const politenessInstruction = getPolitenessInstruction(politeness);
-  const lengthInstruction = getLengthInstruction(length);
-
-  return `请把下面的中文改写成自然、得体、符合日本职场语感的日语。
-
-这不是逐字翻译。请根据对象、渠道、目的、礼貌度和长度调整表达。
-
-中文原文：
-${chineseText}
-
-条件：
-- 对象：${audience}
-- 渠道：${channel}
-- 目的：${purpose}
-- 礼貌度：${politeness}
-- 长度：${length}
-
-补充要求：
-- ${audienceInstruction}
-- ${channelInstruction}
-- ${purposeInstruction}
-- ${politenessInstruction}
-- ${lengthInstruction}
-
-请只输出：
-1. 可直接使用的日语表达
-2. 一个稍微不同的备用表达`;
-}
-
-function buildPrompt(chineseText, audience, channel, purpose, politeness, length, mode) {
-  if (mode === "short") {
-    return buildShortPrompt(chineseText, audience, channel, purpose, politeness, length);
-  }
-
-  const audienceInstruction = getAudienceInstruction(audience);
-  const channelInstruction = getChannelInstruction(channel);
-  const purposeInstruction = getPurposeInstruction(purpose);
   const politenessInstruction = getPolitenessInstruction(politeness);
   const lengthInstruction = getLengthInstruction(length);
 
   return `你是一位非常熟悉日本职场沟通、日本商务日语、Slack / Teams 日语、上司/同僚/客户语感差异的语言顾问。
 
 我的背景：
-使用者是以中文为母语、在日本职场中使用日语进行沟通的人。使用者具备一定的日语基础或商务日语能力，但在不同对象、渠道和场景下，希望把表达调整得更自然、更得体、更符合日本职场语感。
+使用者是以中文为母语、在日本职场中使用日语进行沟通的人。使用者具备一定的日语基础或商务日语能力，但在不同对象和使用场景下，希望把表达调整得更自然、更得体、更符合日本职场语感。
 
 你的任务：
 请把我输入的中文内容，改写成自然、得体、符合日本职场语感的日语。
@@ -234,23 +158,21 @@ function buildPrompt(chineseText, audience, channel, purpose, politeness, length
 
 请注意：
 1. 不要逐字翻译中文。
-2. 要根据对象、渠道、目的、礼貌度和长度调整表达。
-3. 上司、同事、客户、Slack / Teams、邮件、晨会报告、晨会模板填写的语感要区分。
-4. 输出要自然，像真实日本公司员工会写或会说的话。
-5. 不要过度卑微。
-6. 不要过度夸张。
-7. 不要把中文式逻辑硬翻成日语。
-8. 遇到表达情绪、困难、请求时，要委婉但清楚。
-9. 如果原文里有攻击性、焦虑、抱怨、过度解释，请自动改成职场可接受表达。
-10. 如果信息不足，请用自然的日语保留模糊性，不要乱编细节。
-11. 如果是 Slack / Teams，用语要短，但不能显得冷淡。
-12. 如果是给上司，要礼貌、有报告意识，但不要过度卑微。
-13. 如果是给同僚，要自然、有协作感。
-14. 如果是晨会或口头报告，要简洁，适合说出口。
-15. 如果是晨会模板填写，要优先使用短句、名词、项目符号，不要强行写成完整句。
-16. 遇到进度延迟时，要表达“现状、原因、下一步”，但不要像在找借口。
-17. 遇到不懂的问题时，要表达“自己先尝试过，但希望确认”，不要显得完全没想。
-18. 遇到身体不舒服、请假、早退、迟到时，要自然说明，不要写得太沉重。
+2. 要根据对象、使用场景、礼貌度和长度调整表达。
+3. 请根据中文原文自行判断表达意图，例如报告、商量、请求、确认、道歉、拒绝、请假、迟到、早退或普通闲聊式沟通。不要强行把内容归类为某一种目的。不要因为系统选项而重复或强化原文里已经存在的“疑惑、请求、确认、道歉”等含义。重点是把原文整理成自然、得体、符合日本职场语感的表达。
+4. 上司、同事、客户、Slack / Teams、邮件、晨会报告、晨会模板填写的语感要区分。
+5. 输出要自然，像真实日本公司员工会写或会说的话。
+6. 不要过度卑微。
+7. 不要过度夸张。
+8. 不要把中文式逻辑硬翻成日语。
+9. 遇到表达情绪、困难、请求时，要委婉但清楚。
+10. 如果原文里有攻击性、焦虑、抱怨、过度解释，请自动改成职场可接受表达。
+11. 如果信息不足，请用自然的日语保留模糊性，不要乱编细节。
+12. 如果是 Slack / Teams，用语要短，但不能显得冷淡。
+13. 如果是给上司，要礼貌、有报告意识，但不要过度卑微。
+14. 如果是给同事，要自然、有协作感。
+15. 如果是晨会或口头报告，要简洁，适合说出口。
+16. 如果是晨会模板填写，要优先使用短句、名词、项目符号，不要强行写成完整句。
 
 【我的中文原文】
 ${chineseText}
@@ -261,17 +183,11 @@ ${audience}
 【对象说明】
 ${audienceInstruction}
 
-【渠道】
+【场景】
 ${channel}
 
-【渠道说明】
+【场景说明】
 ${channelInstruction}
-
-【目的】
-${purpose}
-
-【目的说明】
-${purposeInstruction}
 
 【礼貌度】
 ${politeness}
@@ -294,7 +210,7 @@ ${lengthInstruction}
 （日语：在同一条件下，给一个语感略有不同的备选表达）
 
 【より自然にするポイント】
-（中文解释：为什么这样说适合这个对象、渠道、目的和长度）
+（中文解释：为什么这样说适合这个对象、使用场景和长度）
 
 【避けた方がいい直訳】
 （中文解释：哪些中文直译容易显得奇怪、强硬、冷淡或不自然）`;
@@ -366,15 +282,17 @@ function renderHistory() {
         ${escapeHtml(item.time)}｜${escapeHtml(item.audience)}｜${escapeHtml(item.channel)}
       </div>
       <div class="history-tags">
-        <span>${escapeHtml(item.purpose)}</span>
         <span>${escapeHtml(item.politeness)}</span>
         <span>${escapeHtml(item.length)}</span>
       </div>
       <div class="history-text">${escapeHtml(item.chineseText)}</div>
       <button class="history-copy-button" data-index="${index}">
-        复制这条 Prompt
+        复制这条提示词
       </button>
     `;
+
+    div.querySelector(".history-meta").textContent =
+      `${item.time} / ${item.audience} / ${item.channel}`;
 
     historyList.appendChild(div);
   });
@@ -393,7 +311,7 @@ function renderHistory() {
       const success = await copyText(item.prompt);
 
       if (success) {
-        setStatus("已复制历史 Prompt。");
+        setStatus("已复制历史提示词。");
       } else {
         setStatus("浏览器阻止了一键复制。请手动复制输出框内容。");
       }
@@ -451,10 +369,8 @@ function initializeApp() {
   const chineseInput = document.getElementById("chineseInput");
   const audienceSelect = document.getElementById("audienceSelect");
   const channelSelect = document.getElementById("channelSelect");
-  const purposeSelect = document.getElementById("purposeSelect");
   const politenessSelect = document.getElementById("politenessSelect");
   const lengthSelect = document.getElementById("lengthSelect");
-  const promptModeSelect = document.getElementById("promptModeSelect");
 
   const generateButton = document.getElementById("generateButton");
   const copyButton = document.getElementById("copyButton");
@@ -474,11 +390,10 @@ function initializeApp() {
       chineseInput.value = preset.text;
       audienceSelect.selectedIndex = preset.audienceIndex;
       channelSelect.selectedIndex = preset.channelIndex;
-      purposeSelect.selectedIndex = preset.purposeIndex;
       politenessSelect.selectedIndex = preset.politenessIndex;
       lengthSelect.selectedIndex = preset.lengthIndex;
 
-      setStatus("已套用常用组合，可继续修改后生成 Prompt。");
+      setStatus("已套用常用组合，可继续修改后生成提示词。");
       chineseInput.focus();
     });
   });
@@ -487,10 +402,8 @@ function initializeApp() {
     const chineseText = chineseInput.value.trim();
     const audience = audienceSelect.value;
     const channel = channelSelect.value;
-    const purpose = purposeSelect.value;
     const politeness = politenessSelect.value;
     const length = lengthSelect.value;
-    const promptMode = promptModeSelect.value;
 
     if (!chineseText) {
       setStatus("请先输入中文内容。");
@@ -501,10 +414,8 @@ function initializeApp() {
       chineseText,
       audience,
       channel,
-      purpose,
       politeness,
-      length,
-      promptMode
+      length
     );
 
     promptOutput.value = prompt;
@@ -517,16 +428,14 @@ function initializeApp() {
       chineseText,
       audience,
       channel,
-      purpose,
       politeness,
       length,
-      promptMode,
       prompt
     });
 
     renderHistory();
 
-    setStatus("Prompt 已生成。可以点击一键复制。");
+    setStatus("提示词已生成。可以点击复制。");
 
     // 自动滚动到结果区域，手机上体验更好。
     resultSection.scrollIntoView({
@@ -539,7 +448,7 @@ function initializeApp() {
     const text = promptOutput.value;
 
     if (!text) {
-      setStatus("还没有可复制的 Prompt。");
+      setStatus("还没有可复制的提示词。");
       return;
     }
 
