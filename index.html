@@ -68,6 +68,12 @@ index.html
         placeholder="例如：任务进度有点延迟，但我已经确认了原因，今天下午会继续处理。"
       ></textarea>
 
+      <div class="quick-row" aria-label="常用组合">
+        <button type="button" class="quick-button" data-preset="delay">进度延期</button>
+        <button type="button" class="quick-button" data-preset="ask">请同事帮忙</button>
+        <button type="button" class="quick-button" data-preset="sick">请假/迟到</button>
+      </div>
+
       <div class="section-title-row">
         <span class="step-badge">2</span>
         <h2>选择沟通条件</h2>
@@ -140,6 +146,14 @@ index.html
         </div>
       </div>
 
+      <label class="field-label" for="promptModeSelect">
+        Prompt 模式
+      </label>
+      <select id="promptModeSelect" class="select-input">
+        <option value="standard">标准版：质量优先</option>
+        <option value="short">简短版：快速复制</option>
+      </select>
+
       <button id="generateButton" class="primary-button">
         Prompt を生成する
       </button>
@@ -156,6 +170,12 @@ index.html
         <button id="copyButton" class="copy-button">
           一键复制
         </button>
+      </div>
+
+      <div class="result-actions">
+        <a class="chatgpt-link" href="https://chatgpt.com/" target="_blank" rel="noopener noreferrer">
+          打开 ChatGPT
+        </a>
       </div>
 
       <textarea id="promptOutput" class="prompt-output" readonly></textarea>

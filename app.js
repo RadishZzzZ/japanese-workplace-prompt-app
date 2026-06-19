@@ -13,6 +13,34 @@ app.js
 */
 
 
+const PRESETS = {
+  delay: {
+    text: "任务进度有点延期，但我已经确认了原因，今天下午会继续处理。",
+    audienceIndex: 0,
+    channelIndex: 0,
+    purposeIndex: 0,
+    politenessIndex: 0,
+    lengthIndex: 0
+  },
+  ask: {
+    text: "这个部分我不太确定，想请你帮我确认一下处理方向。",
+    audienceIndex: 1,
+    channelIndex: 0,
+    purposeIndex: 2,
+    politenessIndex: 1,
+    lengthIndex: 0
+  },
+  sick: {
+    text: "今天身体不太舒服，可能会晚一点开始工作，我会先处理紧急事项。",
+    audienceIndex: 0,
+    channelIndex: 0,
+    purposeIndex: 6,
+    politenessIndex: 0,
+    lengthIndex: 0
+  }
+};
+
+
 // ============================================================
 // 对象说明：誰に伝えるか
 // ============================================================
@@ -150,7 +178,44 @@ function getLengthInstruction(length) {
 // 生成 Prompt
 // ============================================================
 
-function buildPrompt(chineseText, audience, channel, purpose, politeness, length) {
+function buildShortPrompt(chineseText, audience, channel, purpose, politeness, length) {
+  const audienceInstruction = getAudienceInstruction(audience);
+  const channelInstruction = getChannelInstruction(channel);
+  const purposeInstruction = getPurposeInstruction(purpose);
+  const politenessInstruction = getPolitenessInstruction(politeness);
+  const lengthInstruction = getLengthInstruction(length);
+
+  return `请把下面的中文改写成自然、得体、符合日本职场语感的日语。
+
+这不是逐字翻译。请根据对象、渠道、目的、礼貌度和长度调整表达。
+
+中文原文：
+${chineseText}
+
+条件：
+- 对象：${audience}
+- 渠道：${channel}
+- 目的：${purpose}
+- 礼貌度：${politeness}
+- 长度：${length}
+
+补充要求：
+- ${audienceInstruction}
+- ${channelInstruction}
+- ${purposeInstruction}
+- ${politenessInstruction}
+- ${lengthInstruction}
+
+请只输出：
+1. 可直接使用的日语表达
+2. 一个稍微不同的备用表达`;
+}
+
+function buildPrompt(chineseText, audience, channel, purpose, politeness, length, mode) {
+  if (mode === "short") {
+    return buildShortPrompt(chineseText, audience, channel, purpose, politeness, length);
+  }
+
   const audienceInstruction = getAudienceInstruction(audience);
   const channelInstruction = getChannelInstruction(channel);
   const purposeInstruction = getPurposeInstruction(purpose);
@@ -389,12 +454,34 @@ function initializeApp() {
   const purposeSelect = document.getElementById("purposeSelect");
   const politenessSelect = document.getElementById("politenessSelect");
   const lengthSelect = document.getElementById("lengthSelect");
+  const promptModeSelect = document.getElementById("promptModeSelect");
 
   const generateButton = document.getElementById("generateButton");
   const copyButton = document.getElementById("copyButton");
   const promptOutput = document.getElementById("promptOutput");
   const resultSection = document.getElementById("resultSection");
   const clearHistoryButton = document.getElementById("clearHistoryButton");
+  const quickButtons = document.querySelectorAll(".quick-button");
+
+  quickButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const preset = PRESETS[button.dataset.preset];
+
+      if (!preset) {
+        return;
+      }
+
+      chineseInput.value = preset.text;
+      audienceSelect.selectedIndex = preset.audienceIndex;
+      channelSelect.selectedIndex = preset.channelIndex;
+      purposeSelect.selectedIndex = preset.purposeIndex;
+      politenessSelect.selectedIndex = preset.politenessIndex;
+      lengthSelect.selectedIndex = preset.lengthIndex;
+
+      setStatus("已套用常用组合，可继续修改后生成 Prompt。");
+      chineseInput.focus();
+    });
+  });
 
   generateButton.addEventListener("click", () => {
     const chineseText = chineseInput.value.trim();
@@ -403,6 +490,7 @@ function initializeApp() {
     const purpose = purposeSelect.value;
     const politeness = politenessSelect.value;
     const length = lengthSelect.value;
+    const promptMode = promptModeSelect.value;
 
     if (!chineseText) {
       setStatus("请先输入中文内容。");
@@ -415,7 +503,8 @@ function initializeApp() {
       channel,
       purpose,
       politeness,
-      length
+      length,
+      promptMode
     );
 
     promptOutput.value = prompt;
@@ -431,6 +520,7 @@ function initializeApp() {
       purpose,
       politeness,
       length,
+      promptMode,
       prompt
     });
 
