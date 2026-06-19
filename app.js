@@ -20,7 +20,7 @@ const PRESETS = {
     channelIndex: 0,
     purposeIndex: 0,
     politenessIndex: 0,
-    lengthIndex: 0
+    lengthIndex: 2
   },
   ask: {
     text: "这个部分我不太确定，想请你帮我确认一下处理方向。",
@@ -28,7 +28,7 @@ const PRESETS = {
     channelIndex: 0,
     purposeIndex: 2,
     politenessIndex: 1,
-    lengthIndex: 0
+    lengthIndex: 2
   },
   sick: {
     text: "今天身体不太舒服，可能会晚一点开始工作，我会先处理紧急事项。",
@@ -36,7 +36,7 @@ const PRESETS = {
     channelIndex: 0,
     purposeIndex: 6,
     politenessIndex: 0,
-    lengthIndex: 0
+    lengthIndex: 2
   }
 };
 
@@ -154,20 +154,20 @@ function getPolitenessInstruction(politeness) {
 
 function getLengthInstruction(length) {
   const lengthMap = {
-    "一言だけ":
-      "长度必须控制在 1 句话以内。不要解释，不要寒暄，只保留最核心的信息。",
+    "短句 / 条目":
+      "输出形式是短句或条目，不要求完整句子。适合晨会模板、列表、记录、进度填写。优先使用名词、短语、项目符号，例如「Java研修課題」「RDB講義参加」「特になし」。",
 
-    "単語・短句のみ":
-      "长度要求是单词或短句。请尽量不要写完整句子。优先使用名词、动名词、短语或项目符号。适合填写模板、列表、朝会记录。避免使用「〜しました」「〜します」这类完整句，除非为了自然表达必须使用。",
+    "一句话":
+      "输出 1 句完整表达。适合 Slack / Teams 中的快速回复或简短说明。不要展开解释。",
 
-    "短め":
-      "长度控制在 1〜2 句话。优先保留结论和下一步。",
+    "简短：1-2句":
+      "输出 1 到 2 句。优先保留结论和必要的下一步，适合大多数日常职场沟通。",
 
-    "標準":
-      "长度控制在 2〜4 句话。包含必要的背景、现状和下一步。",
+    "标准：2-3句":
+      "输出 2 到 3 句。包含必要背景、现状和下一步，适合稍微正式一点的说明。",
 
-    "少し詳しく":
-      "长度控制在 4〜6 句话。适合邮件或复杂说明。可以适度补充背景、理由和后续安排，但不要冗长。"
+    "稍详细：4-5句":
+      "输出 4 到 5 句。适合邮件、复杂说明或需要补充背景的情况，但不要冗长。"
   };
 
   return lengthMap[length] || "请控制在自然、易读的长度。";
@@ -546,9 +546,9 @@ function initializeApp() {
     const success = await copyText(text);
 
     if (success) {
-      setStatus("已复制。可以打开 ChatGPT 粘贴发送。");
+      setStatus("已复制。请切换到 ChatGPT App 或网页版粘贴发送。");
     } else {
-      setStatus("浏览器阻止了一键复制。文本已自动选中，请手动复制后打开 ChatGPT。");
+      setStatus("浏览器阻止了一键复制。文本已自动选中，请手动复制后切换到 ChatGPT。");
     }
   });
 
