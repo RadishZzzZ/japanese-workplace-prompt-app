@@ -35,6 +35,7 @@ Before making changes that affect dependencies, deployment, privacy, cost, API k
 - Open `index.html` with VS Code Live Server for the current static version.
 - Test prompt generation.
 - Test that each length/format option changes the requested final Japanese output without adding facts or intent.
+- Test that both Japanese candidates preserve the same information and each independently follows the selected length/format.
 - Test the copy button.
 - Test history records.
 - Test the layout at phone-width sizes.

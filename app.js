@@ -213,7 +213,7 @@ function buildPrompt(chineseText, audienceValue, channelValue, politenessValue, 
   const politeness = getOption("politeness", politenessValue, DEFAULT_SELECTIONS.politenessKey);
   const length = getOption("lengths", lengthValue, DEFAULT_SELECTIONS.lengthKey);
 
-  return `你是熟悉日本职场沟通的日语编辑。请把下面的中文整理成可以直接使用的自然日语。
+  return `你是熟悉日本职场沟通的日语编辑。请把下面的中文整理成两种可以直接使用的自然日语表达。
 
 基本原则：
 - 完整保留原意和信息边界，不得添加原文没有的事实、理由、请求、道歉、情绪、承诺或下一步。
@@ -231,7 +231,19 @@ function buildPrompt(chineseText, audienceValue, channelValue, politenessValue, 
 中文原文：
 ${chineseText}
 
-只输出最终日语，不要添加标题、引号、备选表达、中文解释或分析。`;
+输出要求：
+- 提供两种意思完全一致、措辞或语气略有差别的自然日语，方便使用者自行选择。
+- 两种表达都必须完整保留相同的信息边界，不得让其中一种增加请求、道歉、情绪、承诺或下一步。
+- 所选“长度 / 形式”分别适用于每一种表达，不是两种表达合计。例如选择“一句话”时，A 和 B 各输出 1 句。
+- 不要添加中文解释、直译分析或其他建议。
+
+请严格使用下面的格式：
+
+【自然表达 A】
+（日语）
+
+【自然表达 B】
+（日语）`;
 }
 
 

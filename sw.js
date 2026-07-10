@@ -6,7 +6,7 @@ sw.js
 ============================================================
 */
 
-const CACHE_NAME = "jp-workplace-prompt-pwa-v6";
+const CACHE_NAME = "jp-workplace-prompt-pwa-v7";
 
 const FILES_TO_CACHE = [
   "./",
