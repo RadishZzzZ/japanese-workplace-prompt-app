@@ -35,21 +35,21 @@ index.html
   <div class="app-shell">
 
     <header class="app-header">
-      <div class="logo-circle">
-        <img src="icon.png" alt="App logo" />
+      <div class="logo-circle" aria-hidden="true">
+        <img src="icon.png" alt="" />
       </div>
 
       <div class="header-text">
-        <p class="eyebrow">职场日语表达助手</p>
+        <p class="eyebrow">中文 → 自然职场日语</p>
         <h1>职场日语表达助手</h1>
-        <p class="subtitle">把中文想法整理成自然的日本职场日语</p>
+        <p class="subtitle">根据沟通对象和场景，生成可复制到 ChatGPT 的提示词</p>
       </div>
     </header>
 
     <section class="notice-card">
-      <div class="notice-title">先写中文，再复制到 ChatGPT</div>
+      <div class="notice-title">先写中文，再选择使用场景</div>
       <p>
-        根据对象、使用场景、礼貌度和长度，帮你生成一段可以复制到 ChatGPT 的提示词。
+        生成后复制到 ChatGPT，即可获得自然、得体且保留原意的职场日语。
         请不要输入客户名、项目名、公司机密等敏感信息。
       </p>
     </section>
@@ -58,19 +58,24 @@ index.html
 
       <div class="section-title-row">
         <span class="step-badge">1</span>
-        <h2>输入你想表达的中文</h2>
+        <h2 id="inputTitle">输入你想表达的中文</h2>
       </div>
 
+      <label class="visually-hidden" for="chineseInput">输入你想表达的中文</label>
       <textarea
         id="chineseInput"
         class="text-input"
         placeholder="例如：任务进度有点延迟，但我已经确认了原因，今天下午会继续处理。"
       ></textarea>
 
-      <div class="quick-row" aria-label="常用组合">
-        <button type="button" class="quick-button" data-preset="delay">进度延期</button>
-        <button type="button" class="quick-button" data-preset="ask">请同事帮忙</button>
-        <button type="button" class="quick-button" data-preset="sick">请假/迟到</button>
+      <div class="quick-helper">
+        <span>快速填入示例</span>
+        <span>会替换当前内容和设置</span>
+      </div>
+      <div class="quick-row" aria-label="快速填入示例">
+        <button type="button" class="quick-button" data-preset="delay">进度延期示例</button>
+        <button type="button" class="quick-button" data-preset="ask">同事确认示例</button>
+        <button type="button" class="quick-button" data-preset="sick">请假/迟到示例</button>
       </div>
 
       <div class="section-title-row">
@@ -82,22 +87,22 @@ index.html
         对象：说给谁
       </label>
       <select id="audienceSelect" class="select-input">
-        <option>上司</option>
-        <option>同事</option>
-        <option>团队全体</option>
-        <option>客户 / 公司外部</option>
-        <option>自己备忘</option>
+        <option value="manager">上司</option>
+        <option value="colleague">同事</option>
+        <option value="team">团队全体</option>
+        <option value="external">客户 / 公司外部</option>
+        <option value="self">自己备忘</option>
       </select>
 
       <label class="field-label" for="channelSelect">
         场景：在哪里使用
       </label>
       <select id="channelSelect" class="select-input">
-        <option>Slack / Teams</option>
-        <option>邮件</option>
-        <option>口头报告 / 朝会发言</option>
-        <option>朝会模板填写</option>
-        <option>文档 / 会议记录</option>
+        <option value="chat">Slack / Teams</option>
+        <option value="email">邮件</option>
+        <option value="spoken">口头报告 / 朝会发言</option>
+        <option value="standup">朝会模板填写</option>
+        <option value="document">文档 / 会议记录</option>
       </select>
 
       <div class="section-title-row compact">
@@ -111,9 +116,9 @@ index.html
             礼貌度：表达要多正式
           </label>
           <select id="politenessSelect" class="select-input">
-            <option>稍微轻松</option>
-            <option>普通礼貌</option>
-            <option>更正式</option>
+            <option value="relaxed">稍微轻松</option>
+            <option value="normal" selected>普通礼貌</option>
+            <option value="formal">更正式</option>
           </select>
         </div>
 
@@ -122,33 +127,34 @@ index.html
             长度 / 形式：输出要多长
           </label>
           <select id="lengthSelect" class="select-input">
-            <option>短句 / 条目</option>
-            <option>一句话</option>
-            <option>简短：1-2句</option>
-            <option>标准：2-3句</option>
-            <option>稍详细：4-5句</option>
+            <option value="bullets">短句 / 条目</option>
+            <option value="oneSentence">一句话</option>
+            <option value="short" selected>简短：1-2句</option>
+            <option value="standard">标准：2-3句</option>
+            <option value="detailed">稍详细：4-5句</option>
           </select>
         </div>
       </div>
 
-      <button id="generateButton" class="primary-button">
+      <button id="generateButton" class="primary-button" type="button">
         生成提示词
       </button>
 
-      <p id="statusMessage" class="status-message"></p>
+      <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
     </main>
 
-    <section id="resultSection" class="result-card hidden">
+    <section id="resultSection" class="result-card hidden" aria-labelledby="resultTitle">
       <div class="result-header">
         <div>
           <p class="eyebrow small">复制到 ChatGPT 使用</p>
-          <h2>已为你整理好提示词</h2>
+          <h2 id="resultTitle" tabindex="-1">已为你整理好提示词</h2>
         </div>
-        <button id="copyButton" class="copy-button">
+        <button id="copyButton" class="copy-button" type="button">
           复制提示词
         </button>
       </div>
 
+      <label class="visually-hidden" for="promptOutput">生成的提示词</label>
       <textarea id="promptOutput" class="prompt-output" readonly></textarea>
 
       <p class="hint-text">
@@ -162,7 +168,7 @@ index.html
           <p class="eyebrow small">最近使用</p>
           <h2>最近记录</h2>
         </div>
-        <button id="clearHistoryButton" class="secondary-button">
+        <button id="clearHistoryButton" class="secondary-button" type="button" disabled>
           清空
         </button>
       </div>
@@ -170,6 +176,8 @@ index.html
       <div id="historyList" class="history-list">
         <p class="empty-history">还没有历史记录。</p>
       </div>
+
+      <p id="historyStatusMessage" class="history-status-message" role="status" aria-live="polite"></p>
     </section>
 
   </div>

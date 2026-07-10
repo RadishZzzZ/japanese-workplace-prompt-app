@@ -6,7 +6,7 @@ sw.js
 ============================================================
 */
 
-const CACHE_NAME = "jp-workplace-prompt-pwa-v5";
+const CACHE_NAME = "jp-workplace-prompt-pwa-v6";
 
 const FILES_TO_CACHE = [
   "./",
@@ -23,6 +23,7 @@ self.addEventListener("install", (event) => {
       .then((cache) => {
         return cache.addAll(FILES_TO_CACHE);
       })
+      .then(() => self.skipWaiting())
   );
 });
 
@@ -38,10 +39,17 @@ self.addEventListener("activate", (event) => {
           })
         );
       })
+      .then(() => self.clients.claim())
   );
 });
 
 self.addEventListener("fetch", (event) => {
+  const requestUrl = new URL(event.request.url);
+
+  if (event.request.method !== "GET" || requestUrl.origin !== self.location.origin) {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .catch(() => {

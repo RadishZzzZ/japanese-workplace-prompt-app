@@ -4,7 +4,7 @@
 
 This project is currently a GitHub Pages friendly static PWA. The default assumption is: keep it simple, frontend-only, and runnable from static files.
 
-The product direction should remain focused on helping Chinese-native users generate ChatGPT prompts for Japanese workplace communication. Preserve the core structure of audience, channel, purpose, politeness, and length unless the task explicitly asks for a redesign.
+The product direction should remain focused on helping Chinese-native users generate ChatGPT prompts for Japanese workplace communication. Preserve the core structure of audience, channel, politeness, and length/format unless the task explicitly asks for a redesign. Infer communication intent from the user's Chinese text instead of reintroducing a required purpose or mode selector.
 
 ## Current Main Files
 
@@ -34,6 +34,7 @@ Before making changes that affect dependencies, deployment, privacy, cost, API k
 
 - Open `index.html` with VS Code Live Server for the current static version.
 - Test prompt generation.
+- Test that each length/format option changes the requested final Japanese output without adding facts or intent.
 - Test the copy button.
 - Test history records.
 - Test the layout at phone-width sizes.
