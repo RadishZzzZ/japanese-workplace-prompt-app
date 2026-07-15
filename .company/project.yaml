@@ -1,0 +1,28 @@
+schema_version: 1
+project_id: "japanese-workplace-prompt-app"
+display_name: "职场日语表达助手"
+summary: "面向中文母语者的日本职场日语表达 Prompt 静态 PWA。"
+project_kind: "software"
+canonical_path: "D:\\AI\\japanese-workplace-prompt-app"
+repo:
+  expected: true
+  status: "valid_repo"
+  default_branch: "main"
+canonical_docs:
+  status: ".company/status.md"
+  backlog: ".company/backlog.md"
+  architecture: null
+  readme: "README.md"
+stack:
+  - "HTML"
+  - "CSS"
+  - "JavaScript"
+  - "PWA"
+  - "Service Worker"
+  - "GitHub Pages"
+commands:
+  start: null
+  test: null
+  build: null
+lifecycle: null
+interface_updated_at: "2026-07-15"

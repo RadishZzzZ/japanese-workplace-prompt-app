@@ -40,3 +40,10 @@ Before making changes that affect dependencies, deployment, privacy, cost, API k
 - Test history records.
 - Test the layout at phone-width sizes.
 - If tooling or tests are added later, document and run the relevant commands.
+
+## Company Interface
+
+- Before changing the project, read `.company/project.yaml`, `.company/status.md`, and any relevant entries in `.company/decisions.md`.
+- Treat this project's files as the source of truth. The central `D:\AI\_company` repository stores only indexes, summaries, and cross-project information.
+- After completing a task, update `.company/status.md` and only the backlog or decisions entries that the task actually changed.
+- Do not expand product scope or turn conditional suggestions and old plans into active requirements without user confirmation.
