@@ -1,7 +1,7 @@
 schema_version: 1
 project_id: "japanese-workplace-prompt-app"
 display_name: "职场日语表达助手"
-summary: "面向中文母语者的日本职场日语表达 Prompt 静态 PWA。"
+summary: "面向中文母语者的静态 PWA；网页根据用户选择和中文原文生成 Prompt，供 ChatGPT 理解沟通意图并生成职场日语表达。"
 project_kind: "software"
 canonical_path: "D:\\AI\\japanese-workplace-prompt-app"
 repo:

@@ -4,7 +4,7 @@
 
 This project is currently a GitHub Pages friendly static PWA. The default assumption is: keep it simple, frontend-only, and runnable from static files.
 
-The product direction should remain focused on helping Chinese-native users generate ChatGPT prompts for Japanese workplace communication. Preserve the core structure of audience, channel, politeness, and length/format unless the task explicitly asks for a redesign. Infer communication intent from the user's Chinese text instead of reintroducing a required purpose or mode selector.
+The product direction should remain focused on helping Chinese-native users generate ChatGPT prompts for Japanese workplace communication. Preserve the core structure of audience, channel, politeness, and length/format unless the task explicitly asks for a redesign. The webpage does not classify communication intent itself: it builds a prompt from the user's selections and Chinese text, then ChatGPT interprets the specific intent from that text. Do not reintroduce a required purpose or mode selector.
 
 ## Current Main Files
 
