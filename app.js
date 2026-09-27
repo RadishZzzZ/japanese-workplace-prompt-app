@@ -158,7 +158,7 @@ const DEFAULT_SELECTIONS = {
 
 const PRESETS = {
   delay: {
-    name: "进度延期示例",
+    name: "进度延期",
     text: "任务进度有点延期，但我已经确认了原因，今天下午会继续处理。",
     audienceKey: "manager",
     channelKey: "chat",
@@ -166,7 +166,7 @@ const PRESETS = {
     lengthKey: "short"
   },
   ask: {
-    name: "同事确认示例",
+    name: "同事确认",
     text: "这个部分我不太确定，想请你帮我确认一下处理方向。",
     audienceKey: "colleague",
     channelKey: "chat",
@@ -174,7 +174,7 @@ const PRESETS = {
     lengthKey: "short"
   },
   sick: {
-    name: "请假/迟到示例",
+    name: "请假 / 迟到",
     text: "今天身体不太舒服，可能会晚一点开始工作，我会先处理紧急事项。",
     audienceKey: "manager",
     channelKey: "chat",
@@ -764,6 +764,7 @@ function initializeApp() {
       rememberSelections();
       lastUsedPresetKey = button.dataset.preset;
       invalidateResult();
+      document.getElementById("presetPanel").open = false;
 
       setStatus("已填入示例并调整设置，可继续修改。", false);
       chineseInput.focus();

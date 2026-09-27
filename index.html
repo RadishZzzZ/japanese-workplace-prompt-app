@@ -32,18 +32,6 @@
         <label class="field-label" for="chineseInput">中文原文</label>
         <textarea id="chineseInput" class="text-input" placeholder="例如：任务进度有点延迟，但我已经确认了原因，今天下午会继续处理。"></textarea>
 
-        <div class="preset-strip">
-          <div class="preset-strip-heading">
-            <span>常用示例</span>
-            <button id="managePresetsButton" class="text-button" type="button">编辑示例 <span aria-hidden="true">›</span></button>
-          </div>
-          <div class="quick-row" role="group" aria-label="常用示例">
-            <button type="button" class="quick-button" data-preset="delay">进度延期示例</button>
-            <button type="button" class="quick-button" data-preset="ask">同事确认示例</button>
-            <button type="button" class="quick-button" data-preset="sick">请假/迟到示例</button>
-          </div>
-          <p class="preset-note">点选会填入中文内容和四项设置。</p>
-        </div>
       </section>
 
       <section class="conditions-section" aria-labelledby="conditionsTitle">
@@ -108,6 +96,19 @@
         <p id="historyStatusMessage" class="history-status-message" role="status" aria-live="polite"></p>
       </div>
     </details>
+
+    <details id="presetPanel" class="preset-panel">
+      <summary class="preset-summary"><span>常用示例</span><span class="preset-count">3 个</span></summary>
+      <div class="preset-panel-body">
+        <p class="preset-note">点选会替换当前中文内容和四项设置。</p>
+        <div class="quick-list" role="group" aria-label="常用示例">
+          <button type="button" class="quick-button" data-preset="delay">进度延期</button>
+          <button type="button" class="quick-button" data-preset="ask">同事确认</button>
+          <button type="button" class="quick-button" data-preset="sick">请假 / 迟到</button>
+        </div>
+        <button id="managePresetsButton" class="text-button preset-edit-button" type="button">编辑示例 <span aria-hidden="true">›</span></button>
+      </div>
+    </details>
   </div>
 
   <dialog id="presetDialog" class="preset-dialog" aria-labelledby="presetDialogTitle">
@@ -117,9 +118,9 @@
     </div>
     <p class="dialog-intro">每个示例都可单独修改；保存后，主页面点一下就能填入。</p>
     <div class="preset-slot-row" role="group" aria-label="选择要编辑的示例">
-      <button class="preset-slot-button" data-preset-slot="delay" type="button">进度延期示例</button>
-      <button class="preset-slot-button" data-preset-slot="ask" type="button">同事确认示例</button>
-      <button class="preset-slot-button" data-preset-slot="sick" type="button">请假/迟到示例</button>
+      <button class="preset-slot-button" data-preset-slot="delay" type="button">进度延期</button>
+      <button class="preset-slot-button" data-preset-slot="ask" type="button">同事确认</button>
+      <button class="preset-slot-button" data-preset-slot="sick" type="button">请假 / 迟到</button>
     </div>
     <div class="preset-editor">
       <label class="field-label" for="presetName">示例名称</label>
