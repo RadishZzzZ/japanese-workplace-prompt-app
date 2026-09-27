@@ -158,6 +158,7 @@ const DEFAULT_SELECTIONS = {
 
 const PRESETS = {
   delay: {
+    name: "进度延期示例",
     text: "任务进度有点延期，但我已经确认了原因，今天下午会继续处理。",
     audienceKey: "manager",
     channelKey: "chat",
@@ -165,6 +166,7 @@ const PRESETS = {
     lengthKey: "short"
   },
   ask: {
+    name: "同事确认示例",
     text: "这个部分我不太确定，想请你帮我确认一下处理方向。",
     audienceKey: "colleague",
     channelKey: "chat",
@@ -172,6 +174,7 @@ const PRESETS = {
     lengthKey: "short"
   },
   sick: {
+    name: "请假/迟到示例",
     text: "今天身体不太舒服，可能会晚一点开始工作，我会先处理紧急事项。",
     audienceKey: "manager",
     channelKey: "chat",
@@ -179,6 +182,62 @@ const PRESETS = {
     lengthKey: "short"
   }
 };
+
+const SELECTIONS_KEY = "jp_workplace_prompt_selections_v1";
+const PRESETS_KEY = "jp_workplace_prompt_presets_v1";
+
+function getSelections() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(SELECTIONS_KEY));
+    if (!saved || typeof saved !== "object") {
+      return DEFAULT_SELECTIONS;
+    }
+    return {
+      audienceKey: resolveOptionKey("audiences", saved.audienceKey, DEFAULT_SELECTIONS.audienceKey),
+      channelKey: resolveOptionKey("channels", saved.channelKey, DEFAULT_SELECTIONS.channelKey),
+      politenessKey: resolveOptionKey("politeness", saved.politenessKey, DEFAULT_SELECTIONS.politenessKey),
+      lengthKey: resolveOptionKey("lengths", saved.lengthKey, DEFAULT_SELECTIONS.lengthKey)
+    };
+  } catch (error) {
+    console.error("读取常用设置失败：", error);
+    return DEFAULT_SELECTIONS;
+  }
+}
+
+function getPresets() {
+  let saved = {};
+  try {
+    saved = JSON.parse(localStorage.getItem(PRESETS_KEY)) || {};
+  } catch (error) {
+    console.error("读取自定义示例失败：", error);
+  }
+
+  return Object.fromEntries(Object.entries(PRESETS).map(([key, original]) => {
+    const custom = saved && typeof saved === "object" ? saved[key] : null;
+    if (!custom || typeof custom.name !== "string" || !custom.name.trim()
+      || typeof custom.text !== "string" || !custom.text.trim()) {
+      return [key, original];
+    }
+    return [key, {
+      name: custom.name.trim().slice(0, 20),
+      text: custom.text,
+      audienceKey: resolveOptionKey("audiences", custom.audienceKey, original.audienceKey),
+      channelKey: resolveOptionKey("channels", custom.channelKey, original.channelKey),
+      politenessKey: resolveOptionKey("politeness", custom.politenessKey, original.politenessKey),
+      lengthKey: resolveOptionKey("lengths", custom.lengthKey, original.lengthKey)
+    }];
+  }));
+}
+
+function storePresets(presets) {
+  try {
+    localStorage.setItem(PRESETS_KEY, JSON.stringify(presets));
+    return true;
+  } catch (error) {
+    console.error("保存自定义示例失败：", error);
+    return false;
+  }
+}
 
 
 function resolveOptionKey(group, value, fallbackKey) {
@@ -478,6 +537,7 @@ function restoreHistoryItem(item) {
   channelSelect.value = item.channelKey;
   politenessSelect.value = item.politenessKey;
   lengthSelect.value = item.lengthKey;
+  rememberSelections();
 
   setStatus("已恢复原文和设置，可修改后重新生成。", false);
   setHistoryStatus("已恢复原文和设置。", false);
@@ -526,6 +586,50 @@ function setHistoryStatus(message, isError = false) {
   }
 }
 
+function setPresetStatus(message, isError = false) {
+  const statusMessage = document.getElementById("presetStatusMessage");
+  statusMessage.textContent = message;
+  statusMessage.classList.toggle("error", isError);
+}
+
+function readSelections() {
+  return {
+    audienceKey: document.getElementById("audienceSelect").value,
+    channelKey: document.getElementById("channelSelect").value,
+    politenessKey: document.getElementById("politenessSelect").value,
+    lengthKey: document.getElementById("lengthSelect").value
+  };
+}
+
+function applySelections(selections) {
+  document.getElementById("audienceSelect").value = selections.audienceKey;
+  document.getElementById("channelSelect").value = selections.channelKey;
+  document.getElementById("politenessSelect").value = selections.politenessKey;
+  document.getElementById("lengthSelect").value = selections.lengthKey;
+}
+
+function rememberSelections() {
+  try {
+    localStorage.setItem(SELECTIONS_KEY, JSON.stringify(readSelections()));
+    return true;
+  } catch (error) {
+    console.error("保存常用设置失败：", error);
+    return false;
+  }
+}
+
+function renderPresetControls() {
+  const presets = getPresets();
+  document.querySelectorAll(".quick-button").forEach((button) => {
+    button.textContent = presets[button.dataset.preset].name;
+  });
+  const slotSelect = document.getElementById("presetSlot");
+  Array.from(slotSelect.options).forEach((option) => {
+    option.textContent = presets[option.value].name;
+  });
+  document.getElementById("presetName").value = presets[slotSelect.value].name;
+}
+
 
 async function copyText(text) {
   try {
@@ -567,10 +671,30 @@ function initializeApp() {
   const resultTitle = document.getElementById("resultTitle");
   const clearHistoryButton = document.getElementById("clearHistoryButton");
   const quickButtons = document.querySelectorAll(".quick-button");
+  const presetSlot = document.getElementById("presetSlot");
+  const presetName = document.getElementById("presetName");
+  const savePresetButton = document.getElementById("savePresetButton");
+  const resetPresetButton = document.getElementById("resetPresetButton");
+  let pendingResetSlot = null;
+
+  function cancelPresetReset() {
+    pendingResetSlot = null;
+    resetPresetButton.textContent = "恢复默认示例";
+  }
+
+  applySelections(getSelections());
+  renderPresetControls();
+  [audienceSelect, channelSelect, politenessSelect, lengthSelect].forEach((select) => {
+    select.addEventListener("change", () => {
+      if (!rememberSelections()) {
+        setStatus("浏览器未能记住设置，请检查存储权限。", true);
+      }
+    });
+  });
 
   quickButtons.forEach((button) => {
     button.addEventListener("click", () => {
-      const preset = PRESETS[button.dataset.preset];
+      const preset = getPresets()[button.dataset.preset];
 
       if (!preset) {
         return;
@@ -581,13 +705,58 @@ function initializeApp() {
       channelSelect.value = preset.channelKey;
       politenessSelect.value = preset.politenessKey;
       lengthSelect.value = preset.lengthKey;
+      rememberSelections();
 
       setStatus("已填入示例并调整设置，可继续修改。", false);
       chineseInput.focus();
     });
   });
 
-  generateButton.addEventListener("click", () => {
+  presetSlot.addEventListener("change", () => {
+    cancelPresetReset();
+    presetName.value = getPresets()[presetSlot.value].name;
+    setPresetStatus("");
+  });
+
+  savePresetButton.addEventListener("click", () => {
+    cancelPresetReset();
+    const name = presetName.value.trim();
+    const text = chineseInput.value.trim();
+    if (!name || !text) {
+      setPresetStatus("请填写示例名称和中文内容后再保存。", true);
+      (!name ? presetName : chineseInput).focus();
+      return;
+    }
+
+    const presets = getPresets();
+    presets[presetSlot.value] = { name, text, ...readSelections() };
+    if (storePresets(presets)) {
+      renderPresetControls();
+      setPresetStatus(`已保存“${name}”，下次打开仍可使用。`);
+    } else {
+      setPresetStatus("浏览器未能保存示例，请检查存储权限。", true);
+    }
+  });
+
+  resetPresetButton.addEventListener("click", () => {
+    if (pendingResetSlot !== presetSlot.value) {
+      pendingResetSlot = presetSlot.value;
+      resetPresetButton.textContent = "再次点击以恢复默认";
+      setPresetStatus("再次点击会覆盖这个位置保存的自定义内容。");
+      return;
+    }
+    cancelPresetReset();
+    const presets = getPresets();
+    presets[presetSlot.value] = PRESETS[presetSlot.value];
+    if (storePresets(presets)) {
+      renderPresetControls();
+      setPresetStatus("已恢复默认示例。");
+    } else {
+      setPresetStatus("浏览器未能恢复示例，请检查存储权限。", true);
+    }
+  });
+
+  generateButton.addEventListener("click", async () => {
     const chineseText = chineseInput.value.trim();
 
     if (!chineseText) {
@@ -610,6 +779,7 @@ function initializeApp() {
 
     promptOutput.value = prompt;
     resultSection.classList.remove("hidden");
+    const copyPromise = copyText(prompt);
 
     const now = new Date();
     saveHistoryItem({
@@ -624,9 +794,14 @@ function initializeApp() {
     });
 
     renderHistory();
-    setStatus("提示词已生成，可以复制到 ChatGPT。", false);
     resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
     resultTitle.focus({ preventScroll: true });
+    if (await copyPromise) {
+      setStatus("提示词已生成并复制，请切换到 ChatGPT 粘贴发送。", false);
+    } else {
+      showPromptForManualCopy(prompt);
+      setStatus("提示词已生成，但浏览器阻止了复制；文本已选中，请手动复制。", true);
+    }
   });
 
   copyButton.addEventListener("click", async () => {

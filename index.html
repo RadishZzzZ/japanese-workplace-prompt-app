@@ -49,7 +49,7 @@ index.html
     <section class="notice-card">
       <div class="notice-title">先写中文，再选择使用场景</div>
       <p>
-        生成后复制到 ChatGPT，即可获得两种自然、得体且保留原意的职场日语表达。
+        生成时会复制提示词；切换到 ChatGPT 粘贴后，可获得两种自然、得体且保留原意的职场日语表达。
         请不要输入客户名、项目名、公司机密等敏感信息。
       </p>
     </section>
@@ -69,14 +69,31 @@ index.html
       ></textarea>
 
       <div class="quick-helper">
-        <span>快速填入示例</span>
-        <span>会替换当前内容和设置</span>
+        <span>常用示例</span>
+        <span>点击会替换当前内容和设置</span>
       </div>
-      <div class="quick-row" aria-label="快速填入示例">
+      <div class="quick-row" aria-label="常用示例">
         <button type="button" class="quick-button" data-preset="delay">进度延期示例</button>
         <button type="button" class="quick-button" data-preset="ask">同事确认示例</button>
         <button type="button" class="quick-button" data-preset="sick">请假/迟到示例</button>
       </div>
+      <details class="preset-manager">
+        <summary>自定义这 3 个示例</summary>
+        <p class="preset-help">先在上方写好中文并选择设置，再选一个位置保存。示例会保存在这台设备的浏览器中。</p>
+        <label class="field-label" for="presetSlot">要修改的示例</label>
+        <select id="presetSlot" class="select-input">
+          <option value="delay">进度延期示例</option>
+          <option value="ask">同事确认示例</option>
+          <option value="sick">请假/迟到示例</option>
+        </select>
+        <label class="field-label" for="presetName">示例名称</label>
+        <input id="presetName" class="preset-name-input" type="text" maxlength="20" autocomplete="off" />
+        <div class="preset-actions">
+          <button id="savePresetButton" class="preset-save-button" type="button">保存当前内容和设置</button>
+          <button id="resetPresetButton" class="secondary-button" type="button">恢复默认示例</button>
+        </div>
+        <p id="presetStatusMessage" class="status-message" role="status" aria-live="polite"></p>
+      </details>
 
       <div class="section-title-row">
         <span class="step-badge">2</span>
@@ -137,7 +154,7 @@ index.html
       </div>
 
       <button id="generateButton" class="primary-button" type="button">
-        生成提示词
+        生成并复制提示词
       </button>
 
       <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
