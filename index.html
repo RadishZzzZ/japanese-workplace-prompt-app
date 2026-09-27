@@ -1,203 +1,146 @@
-<!--
-index.html
-============================================================
-这是 App 的主页面。
-
-新版结构：
-对象 × 场景 × 礼貌度 × 长度
-
-这个页面帮助用户整理可以复制到 ChatGPT 的提示词。
-============================================================
--->
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>职场日语表达助手</title>
-
   <link rel="manifest" href="manifest.webmanifest" />
-
   <meta name="apple-mobile-web-app-title" content="职场日语" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-  <meta name="theme-color" content="#0f2a4a" />
-
+  <meta name="theme-color" content="#173454" />
   <link rel="icon" href="icon.png" type="image/png" />
   <link rel="apple-touch-icon" href="icon.png" />
   <link rel="stylesheet" href="style.css" />
 </head>
-
 <body>
   <div class="app-shell">
-
     <header class="app-header">
-      <div class="logo-circle" aria-hidden="true">
-        <img src="icon.png" alt="" />
-      </div>
-
+      <div class="logo-circle" aria-hidden="true"><img src="icon.png" alt="" /></div>
       <div class="header-text">
         <p class="eyebrow">中文 → 自然职场日语</p>
         <h1>职场日语表达助手</h1>
-        <p class="subtitle">根据沟通对象和场景，生成可复制到 ChatGPT 的提示词</p>
+        <p class="subtitle">写下中文，选好沟通条件，一键复制到 ChatGPT。</p>
       </div>
     </header>
 
-    <section class="notice-card">
-      <div class="notice-title">先写中文，再选择使用场景</div>
-      <p>
-        生成时会复制提示词；切换到 ChatGPT 粘贴后，可获得两种自然、得体且保留原意的职场日语表达。
-        请不要输入客户名、项目名、公司机密等敏感信息。
-      </p>
-    </section>
-
     <main class="main-card">
-
-      <div class="section-title-row">
-        <span class="step-badge">1</span>
-        <h2 id="inputTitle">输入你想表达的中文</h2>
-      </div>
-
-      <label class="visually-hidden" for="chineseInput">输入你想表达的中文</label>
-      <textarea
-        id="chineseInput"
-        class="text-input"
-        placeholder="例如：任务进度有点延迟，但我已经确认了原因，今天下午会继续处理。"
-      ></textarea>
-
-      <div class="quick-helper">
-        <span>常用示例</span>
-        <span>点击会替换当前内容和设置</span>
-      </div>
-      <div class="quick-row" aria-label="常用示例">
-        <button type="button" class="quick-button" data-preset="delay">进度延期示例</button>
-        <button type="button" class="quick-button" data-preset="ask">同事确认示例</button>
-        <button type="button" class="quick-button" data-preset="sick">请假/迟到示例</button>
-      </div>
-      <details class="preset-manager">
-        <summary>自定义这 3 个示例</summary>
-        <p class="preset-help">先在上方写好中文并选择设置，再选一个位置保存。示例会保存在这台设备的浏览器中。</p>
-        <label class="field-label" for="presetSlot">要修改的示例</label>
-        <select id="presetSlot" class="select-input">
-          <option value="delay">进度延期示例</option>
-          <option value="ask">同事确认示例</option>
-          <option value="sick">请假/迟到示例</option>
-        </select>
-        <label class="field-label" for="presetName">示例名称</label>
-        <input id="presetName" class="preset-name-input" type="text" maxlength="20" autocomplete="off" />
-        <div class="preset-actions">
-          <button id="savePresetButton" class="preset-save-button" type="button">保存当前内容和设置</button>
-          <button id="resetPresetButton" class="secondary-button" type="button">恢复默认示例</button>
+      <section class="compose-section" aria-labelledby="inputTitle">
+        <div class="section-heading">
+          <div><p class="section-kicker">表达内容</p><h2 id="inputTitle">这次想怎么说？</h2></div>
         </div>
-        <p id="presetStatusMessage" class="status-message" role="status" aria-live="polite"></p>
-      </details>
+        <label class="field-label" for="chineseInput">中文原文</label>
+        <textarea id="chineseInput" class="text-input" placeholder="例如：任务进度有点延迟，但我已经确认了原因，今天下午会继续处理。"></textarea>
 
-      <div class="section-title-row">
-        <span class="step-badge">2</span>
-        <h2>选择沟通条件</h2>
-      </div>
-
-      <label class="field-label" for="audienceSelect">
-        对象：说给谁
-      </label>
-      <select id="audienceSelect" class="select-input">
-        <option value="manager">上司</option>
-        <option value="colleague">同事</option>
-        <option value="team">团队全体</option>
-        <option value="external">客户 / 公司外部</option>
-        <option value="self">自己备忘</option>
-      </select>
-
-      <label class="field-label" for="channelSelect">
-        场景：在哪里使用
-      </label>
-      <select id="channelSelect" class="select-input">
-        <option value="chat">Slack / Teams</option>
-        <option value="email">邮件</option>
-        <option value="spoken">口头报告 / 朝会发言</option>
-        <option value="standup">朝会模板填写</option>
-        <option value="document">文档 / 会议记录</option>
-      </select>
-
-      <div class="section-title-row compact">
-        <span class="step-badge">3</span>
-        <h2>调整表达风格</h2>
-      </div>
-
-      <div class="two-column-grid">
-        <div>
-          <label class="field-label" for="politenessSelect">
-            礼貌度：表达要多正式
-          </label>
-          <select id="politenessSelect" class="select-input">
-            <option value="relaxed">稍微轻松</option>
-            <option value="normal" selected>普通礼貌</option>
-            <option value="formal">更正式</option>
-          </select>
+        <div class="preset-strip">
+          <div class="preset-strip-heading">
+            <span>常用示例</span>
+            <button id="managePresetsButton" class="text-button" type="button">编辑示例 <span aria-hidden="true">›</span></button>
+          </div>
+          <div class="quick-row" role="group" aria-label="常用示例">
+            <button type="button" class="quick-button" data-preset="delay">进度延期示例</button>
+            <button type="button" class="quick-button" data-preset="ask">同事确认示例</button>
+            <button type="button" class="quick-button" data-preset="sick">请假/迟到示例</button>
+          </div>
+          <p class="preset-note">点选会填入中文内容和四项设置。</p>
         </div>
+      </section>
 
-        <div>
-          <label class="field-label" for="lengthSelect">
-            长度 / 形式：输出要多长
-          </label>
-          <select id="lengthSelect" class="select-input">
-            <option value="bullets">短句 / 条目</option>
-            <option value="oneSentence">一句话</option>
-            <option value="short" selected>简短：1-2句</option>
-            <option value="standard">标准：2-3句</option>
-            <option value="detailed">稍详细：4-5句</option>
-          </select>
+      <section class="conditions-section" aria-labelledby="conditionsTitle">
+        <div class="section-heading conditions-heading">
+          <div><p class="section-kicker">使用方式</p><h2 id="conditionsTitle">沟通条件</h2></div>
+          <span class="section-meta">自动记住选择</span>
         </div>
+        <div class="condition-grid">
+          <div class="field">
+            <label class="field-label" for="audienceSelect">对象</label>
+            <select id="audienceSelect" class="select-input">
+              <option value="manager">上司</option><option value="colleague">同事</option><option value="team">团队全体</option><option value="external">客户 / 公司外部</option><option value="self">自己备忘</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="channelSelect">场景</label>
+            <select id="channelSelect" class="select-input">
+              <option value="chat">Slack / Teams</option><option value="email">邮件</option><option value="spoken">口头报告 / 朝会发言</option><option value="standup">朝会模板填写</option><option value="document">文档 / 会议记录</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="politenessSelect">礼貌度</label>
+            <select id="politenessSelect" class="select-input">
+              <option value="relaxed">稍微轻松</option><option value="normal" selected>普通礼貌</option><option value="formal">更正式</option>
+            </select>
+          </div>
+          <div class="field">
+            <label class="field-label" for="lengthSelect">长度 / 形式</label>
+            <select id="lengthSelect" class="select-input">
+              <option value="bullets">短句 / 条目</option><option value="oneSentence">一句话</option><option value="short" selected>简短：1-2句</option><option value="standard">标准：2-3句</option><option value="detailed">稍详细：4-5句</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <div class="action-area">
+        <button id="generateButton" class="primary-button" type="button">生成并复制提示词</button>
+        <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
+        <p class="privacy-hint">使用前请替换客户名、项目名等敏感信息。</p>
       </div>
-
-      <button id="generateButton" class="primary-button" type="button">
-        生成并复制提示词
-      </button>
-
-      <p id="statusMessage" class="status-message" role="status" aria-live="polite"></p>
     </main>
 
     <section id="resultSection" class="result-card hidden" aria-labelledby="resultTitle">
       <div class="result-header">
-        <div>
-          <p class="eyebrow small">复制到 ChatGPT 使用</p>
-          <h2 id="resultTitle" tabindex="-1">已为你整理好提示词</h2>
-        </div>
-        <button id="copyButton" class="copy-button" type="button">
-          复制提示词
-        </button>
+        <div><p class="section-kicker">下一步</p><h2 id="resultTitle" tabindex="-1">提示词已准备好</h2></div>
+        <button id="copyButton" class="copy-button" type="button">再次复制</button>
       </div>
-
-      <label class="visually-hidden" for="promptOutput">生成的提示词</label>
-      <textarea id="promptOutput" class="prompt-output" readonly></textarea>
-
-      <p class="hint-text">
-        复制到 ChatGPT 后会得到两种日语表达，可以挑选更适合的一种使用。
-      </p>
+      <p id="resultFeedback" class="result-feedback" role="status" aria-live="polite"></p>
+      <p class="result-hint">切换到 ChatGPT 粘贴发送，再从两种日语表达中选择。</p>
+      <details id="promptDetails" class="prompt-details">
+        <summary>查看生成的提示词</summary>
+        <label class="visually-hidden" for="promptOutput">生成的提示词</label>
+        <textarea id="promptOutput" class="prompt-output" readonly></textarea>
+      </details>
     </section>
 
-    <section class="history-card">
-      <div class="history-header">
-        <div>
-          <p class="eyebrow small">最近使用</p>
-          <h2>最近记录</h2>
-        </div>
-        <button id="clearHistoryButton" class="secondary-button" type="button" disabled>
-          清空
-        </button>
+    <details id="historyPanel" class="history-card">
+      <summary class="history-summary"><span>最近记录</span><span id="historyCount" class="history-count">0 条</span></summary>
+      <div class="history-body">
+        <div class="history-toolbar"><span>仅保存在当前浏览器</span><button id="clearHistoryButton" class="secondary-button" type="button" disabled>清空记录</button></div>
+        <div id="historyList" class="history-list"><p class="empty-history">还没有历史记录。</p></div>
+        <p id="historyStatusMessage" class="history-status-message" role="status" aria-live="polite"></p>
       </div>
-
-      <div id="historyList" class="history-list">
-        <p class="empty-history">还没有历史记录。</p>
-      </div>
-
-      <p id="historyStatusMessage" class="history-status-message" role="status" aria-live="polite"></p>
-    </section>
-
+    </details>
   </div>
+
+  <dialog id="presetDialog" class="preset-dialog" aria-labelledby="presetDialogTitle">
+    <div class="dialog-header">
+      <div><p class="section-kicker">常用示例</p><h2 id="presetDialogTitle">编辑常用表达</h2></div>
+      <button id="closePresetButton" class="close-button" type="button" aria-label="关闭编辑面板" autofocus>×</button>
+    </div>
+    <p class="dialog-intro">每个示例都可单独修改；保存后，主页面点一下就能填入。</p>
+    <div class="preset-slot-row" role="group" aria-label="选择要编辑的示例">
+      <button class="preset-slot-button" data-preset-slot="delay" type="button">进度延期示例</button>
+      <button class="preset-slot-button" data-preset-slot="ask" type="button">同事确认示例</button>
+      <button class="preset-slot-button" data-preset-slot="sick" type="button">请假/迟到示例</button>
+    </div>
+    <div class="preset-editor">
+      <label class="field-label" for="presetName">示例名称</label>
+      <input id="presetName" class="preset-name-input" type="text" maxlength="20" autocomplete="off" />
+      <label class="field-label" for="presetText">中文内容</label>
+      <textarea id="presetText" class="preset-text-input" placeholder="写下这条常用表达的中文内容"></textarea>
+      <button id="useCurrentButton" class="text-button import-button" type="button">填入主页面当前内容与设置</button>
+      <div class="preset-setting-grid">
+        <div class="field"><label class="field-label" for="presetAudience">对象</label><select id="presetAudience" class="select-input"><option value="manager">上司</option><option value="colleague">同事</option><option value="team">团队全体</option><option value="external">客户 / 公司外部</option><option value="self">自己备忘</option></select></div>
+        <div class="field"><label class="field-label" for="presetChannel">场景</label><select id="presetChannel" class="select-input"><option value="chat">Slack / Teams</option><option value="email">邮件</option><option value="spoken">口头报告 / 朝会发言</option><option value="standup">朝会模板填写</option><option value="document">文档 / 会议记录</option></select></div>
+        <div class="field"><label class="field-label" for="presetPoliteness">礼貌度</label><select id="presetPoliteness" class="select-input"><option value="relaxed">稍微轻松</option><option value="normal">普通礼貌</option><option value="formal">更正式</option></select></div>
+        <div class="field"><label class="field-label" for="presetLength">长度 / 形式</label><select id="presetLength" class="select-input"><option value="bullets">短句 / 条目</option><option value="oneSentence">一句话</option><option value="short">简短：1-2句</option><option value="standard">标准：2-3句</option><option value="detailed">稍详细：4-5句</option></select></div>
+      </div>
+    </div>
+    <div class="dialog-footer">
+      <button id="savePresetButton" class="primary-button" type="button">保存这个示例</button>
+      <button id="resetPresetButton" class="reset-button" type="button">填入默认示例</button>
+      <p id="presetStatusMessage" class="preset-status-message" role="status" aria-live="polite"></p>
+      <p class="storage-note">示例会保存在这台设备的浏览器中，请避免保存机密内容。</p>
+    </div>
+  </dialog>
 
   <script src="app.js"></script>
 </body>
