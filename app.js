@@ -685,6 +685,7 @@ function initializeApp() {
   const channelSelect = document.getElementById("channelSelect");
   const politenessSelect = document.getElementById("politenessSelect");
   const lengthSelect = document.getElementById("lengthSelect");
+  const clearCurrentButton = document.getElementById("clearCurrentButton");
   const generateButton = document.getElementById("generateButton");
   const copyButton = document.getElementById("copyButton");
   const promptOutput = document.getElementById("promptOutput");
@@ -739,6 +740,21 @@ function initializeApp() {
   applySelections(getSelections());
   renderPresetControls();
   chineseInput.addEventListener("input", invalidateResult);
+  clearCurrentButton.addEventListener("click", () => {
+    chineseInput.value = "";
+    applySelections(DEFAULT_SELECTIONS);
+    invalidateResult();
+
+    try {
+      localStorage.removeItem(SELECTIONS_KEY);
+      setStatus("已清空中文，沟通条件已恢复默认。", false);
+    } catch (error) {
+      console.error("清除已记住的条件失败：", error);
+      setStatus("当前填写已清空，但浏览器未能清除已记住的条件。", true);
+    }
+
+    chineseInput.focus();
+  });
   [audienceSelect, channelSelect, politenessSelect, lengthSelect].forEach((select) => {
     select.addEventListener("change", () => {
       invalidateResult();
